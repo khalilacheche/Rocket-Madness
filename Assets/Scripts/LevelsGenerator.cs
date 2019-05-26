@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -68,7 +68,7 @@ public class LevelsGenerator : MonoBehaviour
          * Succes Rate : %
          * Difficulty : [easy,medium,hard,very hard]         
         */
-    }
+/*    }
 
 
     IEnumerator LaunchRocketTest(int i, Level level)
@@ -194,3 +194,4 @@ public class LevelsGenerator : MonoBehaviour
         }
     }
 }
+*/

@@ -4,12 +4,8 @@ using UnityEngine;
 
 public class gravity : MonoBehaviour {
 	public float gravityScale;
-	Vector2 horizental; 
-	GameObject planet;
 	// Use this for initialization
 	void Start () {
-		horizental = new Vector2(1,0);
-		planet = transform.parent.gameObject;
 	}
 	
 	// Update is called once per frame
@@ -25,7 +21,7 @@ public class gravity : MonoBehaviour {
         }
     }
 	Vector2 CalcGravity(GameObject obj1){
-        return (gameObject.transform.position - obj1.transform.position) / Vector2.Distance(gameObject.transform.position,obj1.transform.position) * gravityScale;
+        return (gameObject.transform.position - obj1.transform.position) * gravityScale / Mathf.Pow(Vector2.Distance(gameObject.transform.position,obj1.transform.position),2) ;
 	}
 
 }

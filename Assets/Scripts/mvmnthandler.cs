@@ -10,6 +10,7 @@ public class mvmnthandler : MonoBehaviour
     public Vector2 force;
     GameObject rotatingPlatform;
     GameManager gm;
+    GameObject trajectory;
     float timeSinceLaunch;
     void Start()
     {
@@ -17,6 +18,7 @@ public class mvmnthandler : MonoBehaviour
         gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         rotatingPlatform = GameObject.FindGameObjectWithTag("RotatingPlatform");
         timeSinceLaunch = 0;
+        trajectory = GameObject.FindGameObjectWithTag("trajectory");
     }
 
 
@@ -24,6 +26,7 @@ public class mvmnthandler : MonoBehaviour
     {
         if (isPressing)
         {
+            trajectory.SetActive(true);
             mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 mvmntVect = mousePos-startPos;
             if (Vector2.Distance(mousePos, startPos) < 0.01)
@@ -35,16 +38,17 @@ public class mvmnthandler : MonoBehaviour
             float intensity = Vector2.Distance(mousePos, startPos);
             intensity = Mathf.Clamp(intensity, 0, 1f);
             force = -launchspeed * intensity * direction;
-            GameObject.Find("Trajectory Pedictor").GetComponent<trajectory>().CalcTraj();
+            trajectory.GetComponent<trajectory>().CalcTraj();
         }
         else
         {
             //print("Time since launch: "+ (Time.time - timeSinceLaunch));
-            //GameObject.FindGameObjectWithTag("trajectory").SetActive(false);
+            trajectory.SetActive(true);
 
 
         }
-        /*if (Input.touchCount > 0){
+        if (Input.touchCount > 0)
+        {
             Touch touch = Input.GetTouch(0);
             // Handle finger movements based on touch phase.
             switch (touch.phase)
@@ -52,23 +56,19 @@ public class mvmnthandler : MonoBehaviour
                 // Record initial touch position.
                 case TouchPhase.Began:
                     startPos = touch.position;
-                    directionChosen = false;
+                    isPressing = true;
                     break;
 
                 // Determine direction by comparing the current touch position with the initial one.
                 case TouchPhase.Moved:
-                    direction = touch.position - startPos;
                     break;
 
                 // Report that a direction has been chosen when the finger is lifted.
                 case TouchPhase.Ended:
-                    directionChosen = true;
+                    isPressing = false;
                     break;
             }
         }
-        if (directionChosen){
-                    // Something that uses the chosen direction...
-        }*/
     }
     void OnMouseDown()
     {
@@ -87,8 +87,11 @@ public class mvmnthandler : MonoBehaviour
     void LaunchRocket(){
         if (gm.rocketLaunched)
             return;
+        if (force.magnitude < 5)
+            return;
         rocket.GetComponent<Rigidbody2D>().AddForce(force);
         gm.rocketLaunched = true;
+        rocket.transform.GetChild(1).GetComponent<Animator>().SetTrigger("launch-rocket");
         timeSinceLaunch = Time.time;
     }
 }

@@ -12,6 +12,8 @@ TagManager:
   - GravityField
   - dot
   - trajectory
+  - GameOver
+  - BlackHole
   layers:
   - Default
   - TransparentFX
