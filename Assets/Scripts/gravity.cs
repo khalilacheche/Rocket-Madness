@@ -21,7 +21,7 @@ public class gravity : MonoBehaviour {
         }
     }
 	Vector2 CalcGravity(GameObject obj1){
-        return (gameObject.transform.position - obj1.transform.position) * gravityScale / Mathf.Pow(Vector2.Distance(gameObject.transform.position,obj1.transform.position),2) ;
+        return (gameObject.transform.position - obj1.transform.position) *gravityScale / Mathf.Pow(Vector2.Distance(gameObject.transform.position,obj1.transform.position),2) ;
 	}
 
 }

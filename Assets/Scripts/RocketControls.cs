@@ -57,7 +57,6 @@ public class RocketControls : MonoBehaviour
     {
         if (col.gameObject.tag == "BlackHole")
         {
-            Debug.Log("aaa");
             gameObject.GetComponent<Animator>().SetTrigger("fadeout");
             rb.velocity = Vector2.zero;
             transform.GetChild(1).GetComponent<Animator>().SetTrigger("fadeout");

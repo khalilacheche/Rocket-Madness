@@ -5,10 +5,11 @@ public class mvmnthandler : MonoBehaviour
     bool isPressing;
     Vector3 startPos;
     Vector3 mousePos;
-    public GameObject rocket;
     public float launchspeed;
-    public Vector2 force;
-    GameObject rotatingPlatform;
+    public Vector2 launchVelocity;
+    private float initialOffset;
+    private GameObject rocket;
+    private GameObject rotatingPlatform;
     GameManager gm;
     GameObject trajectory;
     float timeSinceLaunch;
@@ -17,35 +18,37 @@ public class mvmnthandler : MonoBehaviour
 //        Debug.Log("straight distance : " + Vector2.Distance(rocket.transform.position, GameObject.FindGameObjectWithTag("FinishPlanet").transform.position));
         gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         rotatingPlatform = GameObject.FindGameObjectWithTag("RotatingPlatform");
+        rocket = GameObject.FindGameObjectWithTag("Rocket");
         timeSinceLaunch = 0;
         trajectory = GameObject.FindGameObjectWithTag("trajectory");
+        initialOffset = Vector2.Distance(rotatingPlatform.transform.position , rocket.transform.position);
     }
 
 
     void Update()
     {
+        if(gm.rocketLaunched){
+            timeSinceLaunch += Time.deltaTime;
+           // print(timeSinceLaunch);
+
+        }
+        trajectory.SetActive(true);
         if (isPressing)
         {
-            trajectory.SetActive(true);
             mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 mvmntVect = mousePos-startPos;
+            float normDirection = Vector2.Distance(mousePos, startPos);
+            Vector3 velocityDirection = (mousePos-startPos)/normDirection;
+            
+            Debug.DrawLine(startPos,mousePos);
             if (Vector2.Distance(mousePos, startPos) < 0.01)
                 return;
-            float rotationZ = Vector2.Angle(Vector2.right, mvmntVect) * (mousePos.y > startPos.y ? 1 : -1);
+            float rotationZ = Vector2.Angle(Vector2.right, velocityDirection) * (mousePos.y > startPos.y ? 1 : -1);
             rotatingPlatform.transform.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ - 90);
-            rocket.transform.parent.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ + 90);
-            Vector3 direction = rotatingPlatform.transform.position - rocket.transform.GetChild(0).transform.position;
-            float intensity = Vector2.Distance(mousePos, startPos);
-            intensity = Mathf.Clamp(intensity, 0, 1f);
-            force = -launchspeed * intensity * direction;
-            trajectory.GetComponent<trajectory>().CalcTraj();
-        }
-        else
-        {
-            //print("Time since launch: "+ (Time.time - timeSinceLaunch));
-            trajectory.SetActive(true);
-
-
+            rocket.transform.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ + 90);
+            rocket.transform.position = rotatingPlatform.transform.position - velocityDirection*initialOffset;
+            float intensity = Mathf.Clamp(normDirection, 0, 1f);
+            launchVelocity = -launchspeed * intensity * velocityDirection;
+            trajectory.GetComponent<PredictionManager>().predict(rocket,rocket.transform.position,launchVelocity);
         }
         if (Input.touchCount > 0)
         {
@@ -87,11 +90,14 @@ public class mvmnthandler : MonoBehaviour
     void LaunchRocket(){
         if (gm.rocketLaunched)
             return;
-        if (force.magnitude < 5)
+        if (launchVelocity.magnitude < 1)
             return;
-        rocket.GetComponent<Rigidbody2D>().AddForce(force);
+        rocket.GetComponent<Rigidbody2D>().velocity = launchVelocity;
         gm.rocketLaunched = true;
         rocket.transform.GetChild(1).GetComponent<Animator>().SetTrigger("launch-rocket");
-        timeSinceLaunch = Time.time;
+        timeSinceLaunch = 0;
+    }
+    public Vector2 getLaunchVelocity(){
+        return new Vector2(launchVelocity.x,launchVelocity.y);
     }
 }

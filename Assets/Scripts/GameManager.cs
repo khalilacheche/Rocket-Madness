@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public GameObject rocket;
     public GameObject moonPrefab;
     public GameObject finishPlanetPrefab;
+    public GameObject predictionManager;
     public Button nextButton;
     public bool GameEnded;
     public GameObject GameOverPanel;
@@ -34,17 +35,22 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         if (GameEnded)
             return;
-        if (rocket.GetComponent<Health>().health <= 1 || GameObject.Find("Boundaries").GetComponent<CollisionHandler>().hasCollidedWithRocket){
+        if (rocket.GetComponent<Health>().health <= 1 || GameObject.Find("Boundaries").GetComponent<CollisionHandler>().hasCollidedWithRocket)
+        {
             Lose();
-        }else if (GameObject.FindGameObjectWithTag("FinishPlanet").GetComponent<CollisionHandler>().hasCollidedWithRocket){
+        }
+        else if (GameObject.FindGameObjectWithTag("FinishPlanet").GetComponent<CollisionHandler>().hasCollidedWithRocket)
+        {
             Win();
         }
     }
-    void Lose (){
+    void Lose()
+    {
         if (PlayerPrefs.GetInt("CurrentLevel") + 1 <= PlayerPrefs.GetInt("HighestLevel") && PlayerPrefs.GetInt("NumberOfLevels") - 1 > PlayerPrefs.GetInt("CurrentLevel"))
-        { 
-            nextButton.interactable = true; 
-        } else { nextButton.interactable = false; }
+        {
+            nextButton.interactable = true;
+        }
+        else { nextButton.interactable = false; }
         rocket.GetComponent<Animator>().SetTrigger("explode");
         rocket.transform.GetChild(1).GetComponent<Animator>().SetTrigger("fadeout");
         GameOverPanel.SetActive(true);
@@ -52,10 +58,14 @@ public class GameManager : MonoBehaviour
         GameEnded = true;
         //Time.timeScale = 0;
     }
-    void Win(){
-        if(PlayerPrefs.GetInt("NumberOfLevels") -1>PlayerPrefs.GetInt("CurrentLevel")){
+    void Win()
+    {
+        if (PlayerPrefs.GetInt("NumberOfLevels") - 1 > PlayerPrefs.GetInt("CurrentLevel"))
+        {
             nextButton.interactable = true;
-        }else{
+        }
+        else
+        {
             nextButton.interactable = false;
         }
 
@@ -66,27 +76,33 @@ public class GameManager : MonoBehaviour
         if (PlayerPrefs.GetInt("HighestLevel") == PlayerPrefs.GetInt("CurrentLevel") && PlayerPrefs.GetInt("NumberOfLevels") - 1 > PlayerPrefs.GetInt("HighestLevel"))
         {
             PlayerPrefs.SetInt("HighestLevel", PlayerPrefs.GetInt("CurrentLevel") + 1);
-        } 
+        }
     }
-    public void loadNextLevel(){
-        PlayerPrefs.SetInt("CurrentLevel",PlayerPrefs.GetInt("CurrentLevel")+1);
+    public void loadNextLevel()
+    {
+        PlayerPrefs.SetInt("CurrentLevel", PlayerPrefs.GetInt("CurrentLevel") + 1);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-    public void restartLevel(){
+    public void restartLevel()
+    {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-    public void GoHome(){
+    public void GoHome()
+    {
         SceneManager.LoadScene("Main Menu");
     }
-    void LoadLevel(){
+    void LoadLevel()
+    {
         int levelIndex = PlayerPrefs.GetInt("CurrentLevel");
         TextAsset level = Resources.Load<TextAsset>("Levels/levels");
         StreamReader strm = new StreamReader(new MemoryStream(level.bytes));
         string json = strm.ReadToEnd();
-        Level [] levels = Levels.CreateFromJSON(json).levels;
+        Level[] levels = Levels.CreateFromJSON(json).levels;
         Level thisLevel = levels[levelIndex];
-        for (int i = 0; i < thisLevel.elements.Length;i++){
-            instantiator.InstantiateElement(thisLevel.elements[i]);
+        
+        for (int i = 0; i < thisLevel.elements.Length; i++)
+        {
+            predictionManager.GetComponent<PredictionManager>().addElement(instantiator.InstantiateElement(thisLevel.elements[i]));
         }
 
     }

@@ -26,7 +26,7 @@ public class LvlEditortrajectory : MonoBehaviour {
         float A = Mathf.Deg2Rad * Vector2.Angle(Vector2.right,mvmnt.force) * (mvmnt.force.y > 0 ? 1 : -1 );
         for (int i = 0; i < number; i++){
             float time = i/frequency ;
-            dots[i].GetComponent<PositionCalculator>().setPosition(time,V,A);
+            //dots[i].GetComponent<PositionCalculator>().setPosition(time,V,A);
         }
     }
 }
