@@ -5,19 +5,19 @@ using UnityEngine.UI;
 
 public class Health : MonoBehaviour {
 
+    public float maxHealth;
     public float health;
-    Vector3 reference;
     public Slider healthbar;
 
 
 	// Use this for initialization
     void Start () {
-
+        health = maxHealth;
     }
     private void Update()
     {
-        health = Mathf.Clamp(health, 0, 100);
-        healthbar.value = health / 100;
+        health = Mathf.Clamp(health, 0, maxHealth);
+        healthbar.value = health / maxHealth;
     }
 
     public void TakeDamage(float amount){
@@ -26,7 +26,7 @@ public class Health : MonoBehaviour {
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        reference = transform.position - collision.transform.position;
+        Vector3 reference = transform.position - collision.transform.position;
         float severity = Mathf.Sin(Vector2.Angle(transform.right,reference)*Mathf.Deg2Rad);
         TakeDamage(100 * severity);
     }

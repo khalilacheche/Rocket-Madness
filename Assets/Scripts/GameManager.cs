@@ -32,10 +32,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Time.timeScale = 2;
         if (Input.GetKeyUp(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         if (GameEnded)
             return;
-        if (rocket.GetComponent<Health>().health <= 1 || GameObject.Find("Boundaries").GetComponent<CollisionHandler>().hasCollidedWithRocket)
+        if (rocket.GetComponent<Health>().health < 1 || GameObject.Find("Boundaries").GetComponent<CollisionHandler>().hasCollidedWithRocket)
         {
             Lose();
         }

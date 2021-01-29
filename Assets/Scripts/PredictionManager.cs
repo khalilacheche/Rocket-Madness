@@ -7,6 +7,7 @@ public class PredictionManager : MonoBehaviour
 {
     private List<GameObject> levelElements = new List<GameObject>();
     public int maxIterations;
+    private bool hasCopied = false;
 
     Scene currentScene;
     Scene predictionScene;
@@ -31,13 +32,23 @@ public class PredictionManager : MonoBehaviour
         predictionPhysicsScene = predictionScene.GetPhysicsScene2D();
 
         lineRenderer = GetComponent<LineRenderer>();
-        copyAllObstacles();
+        Color c1 = Color.blue;
+        Color c2 = new Color(0, 0, 1, 0);
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = c1;
+        lineRenderer.endColor = c2;
+
     }
 
     void FixedUpdate()
     {
         if (currentPhysicsScene.IsValid())
         {
+            if (!hasCopied)
+            {
+                copyAllObstacles();
+                hasCopied = true;
+            }
             currentPhysicsScene.Simulate(Time.fixedDeltaTime);
         }
     }

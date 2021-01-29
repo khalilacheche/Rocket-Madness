@@ -31,6 +31,7 @@ public class levelEditor : MonoBehaviour {
 	void Update () {
         gameObjects = GetGameElements();
     }
+#pragma warning disable CS0168
     public void Save(){
 
         try
@@ -110,6 +111,7 @@ public class levelEditor : MonoBehaviour {
         }
         catch (IndexOutOfRangeException a)
         {
+            
             Debug.LogError("YAATEK AASBA MOCH MAWJOUD");
         }
        

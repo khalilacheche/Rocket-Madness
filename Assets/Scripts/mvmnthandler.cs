@@ -2,76 +2,68 @@
 
 public class mvmnthandler : MonoBehaviour
 {
-    bool isPressing;
-    Vector3 startPos;
-    Vector3 mousePos;
+    private bool isPressing;
+    private bool canLaunch;
+    private Vector3 startPos;
+    private Vector3 mousePos;
     public float launchspeed;
-    public Vector2 launchVelocity;
+    private Vector2 launchVelocity;
     private float initialOffset;
     private GameObject rocket;
     private GameObject rotatingPlatform;
-    GameManager gm;
-    GameObject trajectory;
-    float timeSinceLaunch;
+    private LineRenderer inputLine;
+    private GameManager gm;
+    private GameObject trajectory;
     void Start()
     {
-//        Debug.Log("straight distance : " + Vector2.Distance(rocket.transform.position, GameObject.FindGameObjectWithTag("FinishPlanet").transform.position));
         gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         rotatingPlatform = GameObject.FindGameObjectWithTag("RotatingPlatform");
         rocket = GameObject.FindGameObjectWithTag("Rocket");
-        timeSinceLaunch = 0;
         trajectory = GameObject.FindGameObjectWithTag("trajectory");
         initialOffset = Vector2.Distance(rotatingPlatform.transform.position , rocket.transform.position);
+        inputLine = gameObject.GetComponent<LineRenderer>();
+        inputLine.positionCount = 2;
+        inputLine.material = new Material(Shader.Find("Sprites/Default"));
     }
 
 
     void Update()
     {
-        if(gm.rocketLaunched){
-            timeSinceLaunch += Time.deltaTime;
-           // print(timeSinceLaunch);
-
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (gm.rocketLaunched || !isPressing || startPos == mousePos) {
+            inputLine.enabled = false;
+            return;
         }
-        trajectory.SetActive(true);
-        if (isPressing)
+        inputLine.enabled = true;
+        float normDirection = Vector2.Distance(mousePos, startPos);
+        inputLine.SetPosition(0, new Vector3(startPos.x,startPos.y,1));
+        inputLine.SetPosition(1, new Vector3(mousePos.x, mousePos.y, 1));
+        Vector3 velocityDirection = (mousePos - startPos) / normDirection;
+        float rotationZ = Vector2.Angle(Vector2.left, velocityDirection)* (Mathf.Sign(startPos.y-mousePos.y));
+        velocityDirection = new Vector3(Mathf.Min(0,velocityDirection.x),velocityDirection.x>0?rotationZ>90?-1:1:velocityDirection.y,0);
+        float clampedRotation = Mathf.Clamp(rotationZ, -90, 90);
+        rotatingPlatform.transform.rotation = Quaternion.Euler(0.0f, 0.0f, clampedRotation + 90);
+        rocket.transform.rotation = Quaternion.Euler(0.0f, 0.0f, clampedRotation - 90);
+        rocket.transform.position = rotatingPlatform.transform.position - velocityDirection*initialOffset;
+        if (normDirection < 1)
         {
-            mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            float normDirection = Vector2.Distance(mousePos, startPos);
-            Vector3 velocityDirection = (mousePos-startPos)/normDirection;
-            
-            Debug.DrawLine(startPos,mousePos);
-            if (Vector2.Distance(mousePos, startPos) < 0.01)
-                return;
-            float rotationZ = Vector2.Angle(Vector2.right, velocityDirection) * (mousePos.y > startPos.y ? 1 : -1);
-            rotatingPlatform.transform.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ - 90);
-            rocket.transform.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ + 90);
-            rocket.transform.position = rotatingPlatform.transform.position - velocityDirection*initialOffset;
-            float intensity = Mathf.Clamp(normDirection, 0, 1f);
-            launchVelocity = -launchspeed * intensity * velocityDirection;
-            trajectory.GetComponent<PredictionManager>().predict(rocket,rocket.transform.position,launchVelocity);
+            canLaunch = false;
+            inputLine.startColor = Color.gray;
+            inputLine.endColor = Color.gray;
+            trajectory.GetComponent<LineRenderer>().enabled = false;
         }
-        if (Input.touchCount > 0)
+        else
         {
-            Touch touch = Input.GetTouch(0);
-            // Handle finger movements based on touch phase.
-            switch (touch.phase)
-            {
-                // Record initial touch position.
-                case TouchPhase.Began:
-                    startPos = touch.position;
-                    isPressing = true;
-                    break;
-
-                // Determine direction by comparing the current touch position with the initial one.
-                case TouchPhase.Moved:
-                    break;
-
-                // Report that a direction has been chosen when the finger is lifted.
-                case TouchPhase.Ended:
-                    isPressing = false;
-                    break;
-            }
+            canLaunch = true;
+            inputLine.endColor = Color.white;
+            inputLine.startColor = Color.white;
+            float intensity = normDirection - 1f;
+            launchVelocity = -intensity* launchspeed  * velocityDirection;
+            trajectory.GetComponent<PredictionManager>().predict(rocket, rocket.transform.position, launchVelocity);
+            trajectory.GetComponent<LineRenderer>().enabled = true;
         }
+        
+
     }
     void OnMouseDown()
     {
@@ -79,7 +71,6 @@ public class mvmnthandler : MonoBehaviour
             return;
         isPressing = true;
         startPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //GameObject.FindGameObjectWithTag("trajectory").SetActive(true);
 
     }
     void OnMouseUp()
@@ -87,15 +78,14 @@ public class mvmnthandler : MonoBehaviour
         isPressing = false;
         LaunchRocket();
     }
-    void LaunchRocket(){
+    private void LaunchRocket(){
         if (gm.rocketLaunched)
             return;
-        if (launchVelocity.magnitude < 1)
+        if (!canLaunch)
             return;
         rocket.GetComponent<Rigidbody2D>().velocity = launchVelocity;
         gm.rocketLaunched = true;
         rocket.transform.GetChild(1).GetComponent<Animator>().SetTrigger("launch-rocket");
-        timeSinceLaunch = 0;
     }
     public Vector2 getLaunchVelocity(){
         return new Vector2(launchVelocity.x,launchVelocity.y);

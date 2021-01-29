@@ -14,13 +14,12 @@ public class gravity : MonoBehaviour {
 
     void OnTriggerStay2D(Collider2D col)
     {
-        Vector2 gravityVect = CalcGravity(col.gameObject);
-        Debug.DrawLine(transform.position, transform.position + new Vector3(gravityVect.x,gravityVect.y, 0));
+        Vector2 gravityVect = calcGravity(col.gameObject);
         if (col.gameObject.tag == "Rocket"){
             col.gameObject.GetComponent<Rigidbody2D>().AddForce(gravityVect);
         }
     }
-	Vector2 CalcGravity(GameObject obj1){
+	Vector2 calcGravity(GameObject obj1){
         return (gameObject.transform.position - obj1.transform.position) *gravityScale / Mathf.Pow(Vector2.Distance(gameObject.transform.position,obj1.transform.position),2) ;
 	}
 
