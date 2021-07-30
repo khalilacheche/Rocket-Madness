@@ -7,23 +7,36 @@ public class PredictionManager : MonoBehaviour
 {
     private List<GameObject> levelElements = new List<GameObject>();
     public int maxIterations;
+    public int divider;
+    public GameObject dotPrefab;
     private bool hasCopied = false;
+    private GameObject[] dots;
 
-    Scene currentScene;
-    Scene predictionScene;
+    private Scene currentScene;
+    private Scene predictionScene;
 
-    PhysicsScene2D currentPhysicsScene;
-    PhysicsScene2D predictionPhysicsScene;
+    private PhysicsScene2D currentPhysicsScene;
+    private PhysicsScene2D predictionPhysicsScene;
 
-    List<GameObject> dummyObstacles = new List<GameObject>();
+    private List<GameObject> dummyObstacles = new List<GameObject>();
 
-    LineRenderer lineRenderer;
-    GameObject dummy;
+    //private LineRenderer lineRenderer;
+    private GameObject dummy;
 
     void Start()
     {
         Physics2D.autoSimulation = false;
-
+        dots = new GameObject[maxIterations/divider];
+        float slope = (1 - (50f / 255f)) / dots.Length;
+        for (int i = 0; i < dots.Length; ++i)
+        {
+            dots[i] = Instantiate(dotPrefab, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.identity);
+            dots[i].transform.parent = gameObject.transform;
+            Color temp = dots[i].GetComponent<SpriteRenderer>().color;
+            temp.a = 1 - (i * slope);
+            dots[i].GetComponent<SpriteRenderer>().color = temp;
+            dots[i].SetActive(false);
+        }
         currentScene = SceneManager.GetActiveScene();
         currentPhysicsScene = currentScene.GetPhysicsScene2D();
 
@@ -31,12 +44,15 @@ public class PredictionManager : MonoBehaviour
         predictionScene = SceneManager.CreateScene("Prediction", parameters);
         predictionPhysicsScene = predictionScene.GetPhysicsScene2D();
 
-        lineRenderer = GetComponent<LineRenderer>();
-        Color c1 = Color.blue;
-        Color c2 = new Color(0, 0, 1, 0);
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startColor = c1;
-        lineRenderer.endColor = c2;
+        //lineRenderer = GetComponent<LineRenderer>();
+        Color c1 = Color.white;
+        Color c2 = new Color(1, 1, 1, 0);
+        //lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        //lineRenderer.startColor = c1;
+        //lineRenderer.endColor = c2;
+
+
+
 
     }
 
@@ -58,7 +74,7 @@ public class PredictionManager : MonoBehaviour
         foreach (GameObject go in levelElements)
         {
             Transform t = go.transform;
-            if (t.gameObject.tag!="Rocket")
+            if (t.gameObject.tag!="Rocket" && t.gameObject.tag != "FinishPlanet")
             {
                 GameObject fakeT = Instantiate(t.gameObject);
                 fakeT.transform.position = t.position;
@@ -94,14 +110,17 @@ public class PredictionManager : MonoBehaviour
 
             dummy.transform.position = currentPosition;
             dummy.GetComponent<Rigidbody2D>().velocity = launchVelocity;
-            lineRenderer.positionCount = 0;
-            lineRenderer.positionCount = maxIterations;
+            //lineRenderer.positionCount = 0;
+            //lineRenderer.positionCount = maxIterations;
 
             
-            for (int i = 0; i < maxIterations; i++)
-            {
+            for (int i = 0; i < maxIterations; i++){
                 predictionPhysicsScene.Simulate(Time.fixedDeltaTime);
-                lineRenderer.SetPosition(i, dummy.transform.position);
+                if (i % divider == 0){
+                    dots[i/divider].transform.position = dummy.transform.position;
+
+                }
+                //lineRenderer.SetPosition(i, dummy.transform.position);
             }
 
             Destroy(dummy);
@@ -116,5 +135,21 @@ public class PredictionManager : MonoBehaviour
         killAllObstacles();
     }
 
+    public void showDots()
+    {
+        for (int i =0; i < dots.Length; ++i) {
+            dots[i].SetActive(true);
+        }
+    }
+    public void hideDots(){
+        for (int i = 0; i < dots.Length; ++i)
+        {
+            dots[i].SetActive(false);
+        }
+    }
+    public GameObject[] getDots()
+    {
+        return dots;
+    }
 
 }

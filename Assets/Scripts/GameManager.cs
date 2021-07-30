@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     public Button nextButton;
     public bool GameEnded;
     public GameObject GameOverPanel;
+    public GameObject ghostTrajectoryPrefab;
+    private GameObject ghostTrajectory;
     // Use this for initialization
     void Start()
     {
@@ -27,6 +29,11 @@ public class GameManager : MonoBehaviour
         GameOverPanel = GameObject.FindWithTag("GameOver");
         nextButton = GameObject.Find("Next Button").GetComponent<Button>();
         GameOverPanel.SetActive(false);
+        ghostTrajectory = GameObject.Find("Ghost_Trajectory");
+        if (ghostTrajectory == null){
+            ghostTrajectory = Instantiate(ghostTrajectoryPrefab, Vector3.zero, Quaternion.identity);
+        }
+        DontDestroyOnLoad(ghostTrajectory);
     }
 
     // Update is called once per frame
@@ -49,9 +56,17 @@ public class GameManager : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("CurrentLevel") + 1 <= PlayerPrefs.GetInt("HighestLevel") && PlayerPrefs.GetInt("NumberOfLevels") - 1 > PlayerPrefs.GetInt("CurrentLevel"))
         {
+            Color temp = nextButton.gameObject.GetComponent<Image>().color;
+            temp.a = 1;
+            nextButton.gameObject.GetComponent<Image>().color = temp;
             nextButton.interactable = true;
         }
-        else { nextButton.interactable = false; }
+        else {
+            Color temp = nextButton.gameObject.GetComponent<Image>().color;
+            temp.a = 0;
+            nextButton.gameObject.GetComponent<Image>().color = temp;
+            nextButton.interactable = false; 
+        }
         rocket.GetComponent<Animator>().SetTrigger("explode");
         rocket.transform.GetChild(1).GetComponent<Animator>().SetTrigger("fadeout");
         GameOverPanel.SetActive(true);
@@ -63,10 +78,16 @@ public class GameManager : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("NumberOfLevels") - 1 > PlayerPrefs.GetInt("CurrentLevel"))
         {
+            Color temp = nextButton.gameObject.GetComponent<Image>().color;
+            temp.a = 1;
+            nextButton.gameObject.GetComponent<Image>().color = temp;
             nextButton.interactable = true;
         }
         else
         {
+            Color temp = nextButton.gameObject.GetComponent<Image>().color;
+            temp.a = 0;
+            nextButton.gameObject.GetComponent<Image>().color = temp;
             nextButton.interactable = false;
         }
 
@@ -81,6 +102,7 @@ public class GameManager : MonoBehaviour
     }
     public void loadNextLevel()
     {
+        ghostTrajectory.GetComponent<GhostTrajectoryManager>().EmptyOut();
         PlayerPrefs.SetInt("CurrentLevel", PlayerPrefs.GetInt("CurrentLevel") + 1);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -90,6 +112,7 @@ public class GameManager : MonoBehaviour
     }
     public void GoHome()
     {
+        Destroy(ghostTrajectory);
         SceneManager.LoadScene("Main Menu");
     }
     void LoadLevel()

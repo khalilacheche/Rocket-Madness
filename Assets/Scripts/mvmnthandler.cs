@@ -14,6 +14,7 @@ public class mvmnthandler : MonoBehaviour
     private LineRenderer inputLine;
     private GameManager gm;
     private GameObject trajectory;
+    private GameObject ghostTrajectory;
     void Start()
     {
         gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
@@ -24,6 +25,7 @@ public class mvmnthandler : MonoBehaviour
         inputLine = gameObject.GetComponent<LineRenderer>();
         inputLine.positionCount = 2;
         inputLine.material = new Material(Shader.Find("Sprites/Default"));
+        ghostTrajectory = GameObject.Find("Ghost_Trajectory");
     }
 
 
@@ -50,7 +52,8 @@ public class mvmnthandler : MonoBehaviour
             canLaunch = false;
             inputLine.startColor = Color.gray;
             inputLine.endColor = Color.gray;
-            trajectory.GetComponent<LineRenderer>().enabled = false;
+            trajectory.GetComponent<PredictionManager>().hideDots();
+            //trajectory.GetComponent<LineRenderer>().enabled = false;
         }
         else
         {
@@ -60,9 +63,10 @@ public class mvmnthandler : MonoBehaviour
             float intensity = normDirection - 1f;
             launchVelocity = -intensity* launchspeed  * velocityDirection;
             trajectory.GetComponent<PredictionManager>().predict(rocket, rocket.transform.position, launchVelocity);
-            trajectory.GetComponent<LineRenderer>().enabled = true;
+            trajectory.GetComponent<PredictionManager>().showDots();
+            //trajectory.GetComponent<LineRenderer>().enabled = true;
         }
-        
+
 
     }
     void OnMouseDown()
@@ -86,6 +90,8 @@ public class mvmnthandler : MonoBehaviour
         rocket.GetComponent<Rigidbody2D>().velocity = launchVelocity;
         gm.rocketLaunched = true;
         rocket.transform.GetChild(1).GetComponent<Animator>().SetTrigger("launch-rocket");
+        rocket.transform.GetChild(2).GetComponent<Animator>().SetTrigger("launch-rocket");
+        ghostTrajectory?.GetComponent<GhostTrajectoryManager>().Migrate(trajectory?.GetComponent<PredictionManager>().getDots());
     }
     public Vector2 getLaunchVelocity(){
         return new Vector2(launchVelocity.x,launchVelocity.y);
