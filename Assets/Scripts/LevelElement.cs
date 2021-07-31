@@ -13,6 +13,10 @@ public class LevelElement
         position_x = param.transform.position.x;
         position_y = param.transform.position.y;
         switch(param.tag){
+            case "StarFragment":
+                scale_x = param.transform.localScale.x;
+                scale_y = param.transform.localScale.y;
+                break;
             case "Planet":
                 scale_x = param.transform.GetChild(0).transform.localScale.x;
                 scale_y = param.transform.GetChild(0).transform.localScale.y;

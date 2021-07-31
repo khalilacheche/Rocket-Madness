@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     public GameObject GameOverPanel;
     public GameObject ghostTrajectoryPrefab;
     private GameObject ghostTrajectory;
+    private StarFragmentsManager starFragmentsCounter;
+    private int numberFragments;
+    private Level currentLevel;
     // Use this for initialization
     void Start()
     {
@@ -34,6 +37,9 @@ public class GameManager : MonoBehaviour
             ghostTrajectory = Instantiate(ghostTrajectoryPrefab, Vector3.zero, Quaternion.identity);
         }
         DontDestroyOnLoad(ghostTrajectory);
+        starFragmentsCounter = GameObject.Find("Star_Fragments_Counter")?.GetComponent<StarFragmentsManager>();
+        starFragmentsCounter.initialize(currentLevel.nbStarFragments);
+        numberFragments = 0;
     }
 
     // Update is called once per frame
@@ -92,7 +98,16 @@ public class GameManager : MonoBehaviour
         }
 
         GameOverPanel.SetActive(true);
-        print("You Won!");
+        int score = 1;
+        if (numberFragments >= currentLevel.nbStarFragments)
+        {
+            score += 100;
+        }
+        if(rocket.GetComponent<Health>().health == rocket.GetComponent<Health>().maxHealth)
+        {
+            score += 10;
+        } 
+        print("You Won! " + score);
         GameEnded = true;
         //Time.timeScale = 0;
         if (PlayerPrefs.GetInt("HighestLevel") == PlayerPrefs.GetInt("CurrentLevel") && PlayerPrefs.GetInt("NumberOfLevels") - 1 > PlayerPrefs.GetInt("HighestLevel"))
@@ -115,6 +130,10 @@ public class GameManager : MonoBehaviour
         Destroy(ghostTrajectory);
         SceneManager.LoadScene("Main Menu");
     }
+    public void addFragment(){
+        numberFragments++;
+        starFragmentsCounter?.addFragment();
+    }
     void LoadLevel()
     {
         int levelIndex = PlayerPrefs.GetInt("CurrentLevel");
@@ -123,7 +142,7 @@ public class GameManager : MonoBehaviour
         string json = strm.ReadToEnd();
         Level[] levels = Levels.CreateFromJSON(json).levels;
         Level thisLevel = levels[levelIndex];
-        
+        currentLevel = thisLevel;
         for (int i = 0; i < thisLevel.elements.Length; i++)
         {
             predictionManager.GetComponent<PredictionManager>().addElement(instantiator.InstantiateElement(thisLevel.elements[i]));

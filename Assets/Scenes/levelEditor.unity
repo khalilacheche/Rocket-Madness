@@ -1168,6 +1168,7 @@ MonoBehaviour:
   currentLevel:
     elements: []
     name: 
+    starFragments: 0
   loadText: {fileID: 242514150}
   saveText: {fileID: 1031349340}
   moonPrefab: {fileID: 1769046419862562, guid: 3a87e98799d1f49e5928e73c432350ab, type: 3}
@@ -1319,6 +1320,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6373688674313413992, guid: 2f8c0da450b241c448c60b068e3da838,
+        type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 6373688674313413994, guid: 2f8c0da450b241c448c60b068e3da838,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -17,6 +17,7 @@ public class levelEditor : MonoBehaviour {
     public GameObject moonPrefab;
     public GameObject finishPlanetPrefab;
     public Toggle ovrwrte;
+    public int nbFragments;
 
     // Use this for initialization
     void Start () {
@@ -47,6 +48,7 @@ public class levelEditor : MonoBehaviour {
                 lvlElements[i] = new LevelElement(gameObjects[i]);
             }
             currentLevel.elements = lvlElements;
+            currentLevel.nbStarFragments = nbFragments;
             if (ovrwrte.isOn)
             {
                 lvls = new Level[levels.levels.Length];
@@ -104,6 +106,8 @@ public class levelEditor : MonoBehaviour {
                 Destroy(gameObjects[i]);
             }
             currentLevel = levels.levels[int.Parse(loadText.text)];
+            levelName = currentLevel.name;
+            nbFragments = currentLevel.nbStarFragments;
             for (int i = 0; i < currentLevel.elements.Length; i++)
             {
                 instantiator.InstantiateElement(currentLevel.elements[i]);

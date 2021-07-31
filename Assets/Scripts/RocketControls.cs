@@ -65,6 +65,10 @@ public class RocketControls : MonoBehaviour
             rb.velocity = Vector2.zero;
             transform.GetChild(1).GetComponent<Animator>().SetTrigger("fadeout");
             gameObject.GetComponent<Health>().TakeDamage(gameObject.GetComponent<Health>().maxHealth);
+        }else if(col.gameObject.tag == "StarFragment")
+        {
+            Destroy(col.gameObject);
+            gm?.addFragment();
         }
     }
 

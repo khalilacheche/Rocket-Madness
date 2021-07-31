@@ -14,6 +14,7 @@ TagManager:
   - trajectory
   - GameOver
   - BlackHole
+  - StarFragment
   layers:
   - Default
   - TransparentFX
