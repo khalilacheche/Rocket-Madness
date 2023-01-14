@@ -66,7 +66,7 @@ public class RocketControls : MonoBehaviour
         }else if(col.gameObject.tag == "StarFragment")
         {
             Destroy(col.gameObject);
-            gm.addFragment();
+            gm?.addFragment();
         }
     }
 
