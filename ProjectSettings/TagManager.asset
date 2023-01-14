@@ -15,6 +15,7 @@ TagManager:
   - GameOver
   - BlackHole
   - StarFragment
+  - boundaries
   layers:
   - Default
   - TransparentFX

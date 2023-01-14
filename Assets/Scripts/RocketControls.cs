@@ -61,14 +61,12 @@ public class RocketControls : MonoBehaviour
         if (col.gameObject.tag == "BlackHole")
         {
             gameObject.GetComponent<Animator>().SetTrigger("fadeout");
-            rb = gameObject.GetComponent<Rigidbody2D>();
-            rb.velocity = Vector2.zero;
             transform.GetChild(1).GetComponent<Animator>().SetTrigger("fadeout");
             gameObject.GetComponent<Health>().TakeDamage(gameObject.GetComponent<Health>().maxHealth);
         }else if(col.gameObject.tag == "StarFragment")
         {
             Destroy(col.gameObject);
-            gm?.addFragment();
+            gm.addFragment();
         }
     }
 

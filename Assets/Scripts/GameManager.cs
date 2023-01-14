@@ -17,11 +17,15 @@ public class GameManager : MonoBehaviour
     public bool GameEnded;
     public GameObject GameOverPanel;
     public GameObject ghostTrajectoryPrefab;
+    public UIStarAnimator uiStarAnimator;
+    public Sprite WinSprite;
+    public Sprite LoseSprite;
+    public Image resultImage;
+
     private GameObject ghostTrajectory;
     private StarFragmentsManager starFragmentsCounter;
     private int numberFragments;
     private Level currentLevel;
-    // Use this for initialization
     void Start()
     {
         LoadLevel();
@@ -40,6 +44,7 @@ public class GameManager : MonoBehaviour
         starFragmentsCounter = GameObject.Find("Star_Fragments_Counter")?.GetComponent<StarFragmentsManager>();
         starFragmentsCounter.initialize(currentLevel.nbStarFragments);
         numberFragments = 0;
+
     }
 
     // Update is called once per frame
@@ -51,7 +56,16 @@ public class GameManager : MonoBehaviour
             return;
         if (rocket.GetComponent<Health>().health < 1 || GameObject.Find("Boundaries").GetComponent<CollisionHandler>().hasCollidedWithRocket)
         {
-            Lose();
+            if(rocket.GetComponent<Health>().health < 1)
+            {
+                Invoke("Lose", 2);
+            }
+            else
+            {
+                Lose();
+            }
+            rocket.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            rocket.GetComponent<Animator>().SetTrigger("explode");
         }
         else if (GameObject.FindGameObjectWithTag("FinishPlanet").GetComponent<CollisionHandler>().hasCollidedWithRocket)
         {
@@ -73,10 +87,8 @@ public class GameManager : MonoBehaviour
             nextButton.gameObject.GetComponent<Image>().color = temp;
             nextButton.interactable = false; 
         }
-        rocket.GetComponent<Animator>().SetTrigger("explode");
-        rocket.transform.GetChild(1).GetComponent<Animator>().SetTrigger("fadeout");
         GameOverPanel.SetActive(true);
-        print("You Lost!");
+        resultImage.sprite = LoseSprite;
         GameEnded = true;
         //Time.timeScale = 0;
     }
@@ -96,20 +108,12 @@ public class GameManager : MonoBehaviour
             nextButton.gameObject.GetComponent<Image>().color = temp;
             nextButton.interactable = false;
         }
-
         GameOverPanel.SetActive(true);
-        int score = 1;
-        if (numberFragments >= currentLevel.nbStarFragments)
-        {
-            score += 100;
-        }
-        if(rocket.GetComponent<Health>().health == rocket.GetComponent<Health>().maxHealth)
-        {
-            score += 10;
-        } 
-        print("You Won! " + score);
+        resultImage.sprite = WinSprite;
+        bool allStarFragments = numberFragments >= currentLevel.nbStarFragments;
+        bool fullHealth = rocket.GetComponent<Health>().health == rocket.GetComponent<Health>().maxHealth;
+        uiStarAnimator.StartAnimation(true, allStarFragments, fullHealth);
         GameEnded = true;
-        //Time.timeScale = 0;
         if (PlayerPrefs.GetInt("HighestLevel") == PlayerPrefs.GetInt("CurrentLevel") && PlayerPrefs.GetInt("NumberOfLevels") - 1 > PlayerPrefs.GetInt("HighestLevel"))
         {
             PlayerPrefs.SetInt("HighestLevel", PlayerPrefs.GetInt("CurrentLevel") + 1);
