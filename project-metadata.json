@@ -1,6 +1,6 @@
 {
   "title": "Rocket Madness",
-  "img_path": "https://raw.githubusercontent.com/khalilacheche/Rigel/project-metadata/rigel.png",
+  "img_path": "https://github.com/khalilacheche/Rocket-Madness/raw/project-metadata/rm.gif",
   "description": "A 2D mobile game",
   "tags": ["Game Dev"],
   "langs": ["C#"],
