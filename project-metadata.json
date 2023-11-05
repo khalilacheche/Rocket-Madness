@@ -2,7 +2,14 @@
   "title": "Rocket Madness",
   "img_path": "https://github.com/khalilacheche/Rocket-Madness/raw/project-metadata/rm.gif",
   "description": "A 2D mobile game",
-  "tags": ["Game Dev"],
-  "langs": ["C#"],
-  "frameworks":["Unity"]
+  "tags": [
+    "Game Dev"
+  ],
+  "langs": [
+    "C#"
+  ],
+  "frameworks": [
+    "Unity"
+  ],
+  "date": "2017-10"
 }
